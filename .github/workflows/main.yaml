@@ -1,0 +1,38 @@
+
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Free Disk space
+        shell: bash
+        run: |
+          df -h
+          sudo rm -rf /usr/local/lib/android  # will release about 10 GB if you don't need Android
+          sudo rm -rf /usr/share/dotnet       # will release about 20GB if you don't need .NET
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: hal9ai
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: hal9ai/hal9-runtime:latest,hal9ai/hal9-runtime:0.0.1
