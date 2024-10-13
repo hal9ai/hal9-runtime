@@ -17,3 +17,5 @@ httpx
 imageio[opencv]
 imageio[pyav]
 Pillow
+pytorch-lightning
+
